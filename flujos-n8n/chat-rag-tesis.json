@@ -14,7 +14,7 @@
         0,
         0
       ],
-      "id": "d8341f1c-79a5-4033-a95e-6b46cb06d7cb",
+      "id": "a2f601c3-3f98-42b4-8bdf-fd37a400c1bc",
       "name": "Webhook",
       "webhookId": "c7c5f127-934e-4bd1-ad7f-df7f87f35290"
     },
@@ -32,27 +32,27 @@
         224,
         0
       ],
-      "id": "16f9a423-b2a7-4c6e-a65e-58696ef2f7e0",
+      "id": "7f598ad1-933f-4499-95bb-681a5b34696d",
       "name": "AI Agent",
       "retryOnFail": true,
       "waitBetweenTries": 5000
     },
     {
       "parameters": {
-        "modelName": "models/gemini-3.1-pro-preview",
+        "modelName": "models/gemma-4-31b-it",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
       "typeVersion": 1.2,
       "position": [
-        48,
-        224
+        -16,
+        352
       ],
-      "id": "b4fa2eb7-ffe5-4094-a7a6-24ed38b46066",
+      "id": "960e0233-eea0-4257-b468-e4334b390954",
       "name": "Google Gemini Chat Model",
       "credentials": {
         "googlePalmApi": {
-          "id": "fGOKSRptMu95FSCD",
+          "id": "p7vReOd3O9an03Lv",
           "name": "Google Gemini(PaLM) Api account"
         }
       }
@@ -68,11 +68,11 @@
         256,
         224
       ],
-      "id": "37c1a185-77fc-4bee-bb7a-f74e5f8a46f9",
+      "id": "ac4df65c-f428-42e2-8691-5161b80f870b",
       "name": "Postgres Chat Memory",
       "credentials": {
         "postgres": {
-          "id": "PUtvfhXYlkRTP11w",
+          "id": "oEHdNqnIsPA2DWeX",
           "name": "Postgres account"
         }
       }
@@ -95,11 +95,11 @@
         384,
         240
       ],
-      "id": "e36f79ca-4ffb-408c-82ce-8e597d504d04",
+      "id": "f6bb1390-ddff-4542-a41b-7e51e6a78445",
       "name": "Qdrant Vector Store",
       "credentials": {
         "qdrantApi": {
-          "id": "AzxR9O06tuJln9Uj",
+          "id": "scGvXu464upOUntA",
           "name": "Qdrant account"
         }
       }
@@ -116,7 +116,7 @@
         592,
         0
       ],
-      "id": "ac23a9d1-e990-4b18-940f-5e4a8ef92928",
+      "id": "1e4a60c3-23c4-47ee-bcd6-7bde062e47b9",
       "name": "Respond to Webhook"
     },
     {
@@ -125,13 +125,13 @@
       "typeVersion": 1,
       "position": [
         400,
-        432
+        416
       ],
-      "id": "31fe3cbf-29f1-4791-9be2-130d2e382b11",
+      "id": "374e63b3-3e80-411c-abf5-230a9c43078e",
       "name": "Embeddings Google Gemini",
       "credentials": {
         "googlePalmApi": {
-          "id": "fGOKSRptMu95FSCD",
+          "id": "p7vReOd3O9an03Lv",
           "name": "Google Gemini(PaLM) Api account"
         }
       }
@@ -157,8 +157,28 @@
         640,
         240
       ],
-      "id": "8e7bb232-9cd0-4700-b1fd-d4cf4ca81a44",
+      "id": "6342f30c-f76e-4de4-8cff-73249be1b049",
       "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        96,
+        208
+      ],
+      "id": "75a79861-be63-40a8-a6f3-42fef4e0deaa",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "1r4XpjxiVSMky2Cu",
+          "name": "Groq account"
+        }
+      }
     }
   ],
   "pinData": {},
@@ -176,13 +196,7 @@
     },
     "Google Gemini Chat Model": {
       "ai_languageModel": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
+        []
       ]
     },
     "Postgres Chat Memory": {
@@ -239,19 +253,30 @@
           }
         ]
       ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
-  "active": false,
+  "active": true,
   "settings": {
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "64feca1c-93a5-4812-bcba-30464df445b4",
+  "versionId": "52c6cc36-463f-4b81-9dcd-197fb508a005",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "1986eea2f4850fbe86415601f0e9d470cafd59b9dba440453c79649c0d089a15"
+    "instanceId": "dbf13b94bb08a7501919ea3248a8946c9b0d33bae826320046a6230d68d44f0e"
   },
   "nodeGroups": [],
-  "id": "c5Cbe3WZ7yvLVhkg",
+  "id": "nqhu7Rh633IkNwUF",
   "tags": []
 }
