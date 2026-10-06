@@ -27,7 +27,7 @@ Para ejecutar este proyecto, necesitas tener instalado en tu sistema:
 Clona este repositorio y navega hasta la carpeta del proyecto. Luego, crea tu archivo de configuración local:
 
 1. Duplica el archivo `.env.example` y renómbralo a `.env`.
-2. Abre el archivo `.env` y completa los datos con tus propias credenciales y contraseñas. **Nota:** No utilices comillas para los valores en este archivo.
+2. Abre el archivo `.env` y completa los datos para la base de datos local.
 
 ### 2. Levantar la Infraestructura
 Ejecuta el siguiente comando en la terminal para descargar las imágenes y levantar los contenedores en segundo plano:
@@ -40,20 +40,20 @@ Ejecuta el siguiente comando en la terminal para descargar las imágenes y levan
 1. Ingresa a `http://localhost:5679` en tu navegador.
 2. Crea tu cuenta de usuario administrador local (puedes usar cualquier correo, es un entorno cerrado).
 
-### 4. Inyección de Credenciales (Paso Crítico)
-Por seguridad, las claves reales se inyectan dinámicamente desde el archivo `.env` en tiempo de ejecución. Para que n8n permita esta inyección, debes crear los "cascarones" en la interfaz gráfica:
+### 4. Configurar Credenciales Manualmente
+Para que los flujos puedan comunicarse con los servicios externos, debes configurar las credenciales en la interfaz de n8n:
 
 1. Ve a la sección **Credentials** en el menú lateral izquierdo.
-2. Haz clic en **Create credential** y crea exactamente estas tres credenciales, respetando las mayúsculas y espacios:
-   * `Postgres account`
-   * `Qdrant account`
-   * `Google Gemini(PaLM) Api account`
-3. Llena los campos obligatorios de cada una con datos falsos (por ejemplo, escribe `1234` en los campos de usuario, contraseña o API Key) y guárdalas. El sistema reemplazará estos datos falsos por los reales de tu `.env` de forma invisible al ejecutar el flujo.
+2. Haz clic en **Create credential** y da de alta las siguientes conexiones utilizando tus tokens reales:
+   * **Postgres:** Configura el host como `postgres_tesis` y utiliza el usuario, contraseña y base de datos definidos en tu `.env`.
+   * **Qdrant API:** Ingresa la URL de tu clúster y tu API Key.
+   * **Google Gemini:** Ingresa tu API Key de Google AI Studio.
 
 ### 5. Importar el Flujo
 1. Ve a la sección **Workflows** y haz clic en **Add Workflow**.
 2. Abre el menú superior derecho (`...`) y selecciona **Import from File**.
 3. Selecciona el archivo `.json` ubicado en la carpeta `/flujos` de este repositorio.
+4. Ingresa al flujo y asegúrate de seleccionar las credenciales que acabas de crear en los nodos correspondientes.
 
 ¡Listo! Ya puedes ejecutar el Agente y realizar pruebas en el entorno local.
 

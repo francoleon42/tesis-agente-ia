@@ -23,18 +23,14 @@ services:
     container_name: n8n_tesis
     restart: unless-stopped
     ports:
-      # Mapeo: El puerto externo 5679 de tu compu entra al 5678 del contenedor
       - "5679:5678"
     environment:
       - N8N_HOST=${N8N_HOST}
-      # IMPORTANTE: Forzamos a n8n a usar su puerto nativo internamente
       - N8N_PORT=5678
       - N8N_PROTOCOL=${N8N_PROTOCOL}
       - NODE_ENV=production
-      # Mantenemos el puerto externo explícito para que los Webhooks funcionen bien
       - WEBHOOK_URL=${N8N_PROTOCOL}://${N8N_HOST}:5679/
       - GENERIC_TIMEZONE=${TIMEZONE}
-      - CREDENTIALS_OVERWRITE_DATA={"postgres":{"Postgres account":{"host":"postgres_tesis","database":"${POSTGRES_DB}","user":"${POSTGRES_USER}","password":"${POSTGRES_PASSWORD}"}},"googleGeminiApi":{"Google Gemini(PaLM) Api account":{"apiKey":"${GEMINI_API_KEY}"}},"qdrantApi":{"Qdrant account":{"url":"${QDRANT_URL}","apiKey":"${QDRANT_API_KEY}"}}}
     volumes:
       - n8n_data_tesis:/home/node/.n8n
     depends_on:
