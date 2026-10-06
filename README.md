@@ -61,6 +61,7 @@ Abre el archivo `frontend/index.html` y busca la sección de configuración de J
 // CONFIGURACIÓN DE ENTORNO
 // ==========================================
 const IS_PRODUCTION = true; // Cambiar a false para modo de pruebas
+```
 
 ### Opciones de Configuración:
 
