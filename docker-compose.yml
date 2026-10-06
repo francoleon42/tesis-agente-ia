@@ -1,0 +1,46 @@
+services:
+  postgres_tesis:
+    image: postgres:16
+    container_name: postgres_tesis
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres_data_tesis:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:latest
+    container_name: n8n_tesis
+    restart: unless-stopped
+    ports:
+      # Mapeo: El puerto externo 5679 de tu compu entra al 5678 del contenedor
+      - "5679:5678"
+    environment:
+      - N8N_HOST=${N8N_HOST}
+      # IMPORTANTE: Forzamos a n8n a usar su puerto nativo internamente
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=${N8N_PROTOCOL}
+      - NODE_ENV=production
+      # Mantenemos el puerto externo explícito para que los Webhooks funcionen bien
+      - WEBHOOK_URL=${N8N_PROTOCOL}://${N8N_HOST}:5679/
+      - GENERIC_TIMEZONE=${TIMEZONE}
+      - CREDENTIALS_OVERWRITE_DATA={"postgres":{"Postgres account":{"host":"postgres_tesis","database":"${POSTGRES_DB}","user":"${POSTGRES_USER}","password":"${POSTGRES_PASSWORD}"}},"googleGeminiApi":{"Google Gemini(PaLM) Api account":{"apiKey":"${GEMINI_API_KEY}"}},"qdrantApi":{"Qdrant account":{"url":"${QDRANT_URL}","apiKey":"${QDRANT_API_KEY}"}}}
+    volumes:
+      - n8n_data_tesis:/home/node/.n8n
+    depends_on:
+      postgres_tesis:
+        condition: service_healthy
+
+volumes:
+  postgres_data_tesis:
+  n8n_data_tesis:

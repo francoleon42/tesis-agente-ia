@@ -1,0 +1,14 @@
+#Ignorar las variables de entorno reales (¡NUNCA subir tus contraseñas!)
+
+.env
+
+#Ignorar los volúmenes de datos locales (bases de datos y configuraciones pesadas)
+
+postgres_data/
+n8n_data/
+node_modules/
+
+#Ignorar archivos temporales del sistema operativo
+
+.DS_Store
+Thumbs.db

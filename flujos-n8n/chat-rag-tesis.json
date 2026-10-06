@@ -1,0 +1,257 @@
+{
+  "name": "chat-rag-tesis",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "c7c5f127-934e-4bd1-ad7f-df7f87f35290",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "d8341f1c-79a5-4033-a95e-6b46cb06d7cb",
+      "name": "Webhook",
+      "webhookId": "c7c5f127-934e-4bd1-ad7f-df7f87f35290"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.mensaje }}",
+        "options": {
+          "systemMessage": "Regla de ruteo: Si el usuario busca ideas de tesis locales o el repositorio de la UNGS, DEBES usar la herramienta de Qdrant. Si el usuario pide el estado del arte o papers globales, DEBES usar la herramienta de arXiv. No uses ambas a menos que el usuario pida comparar."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "16f9a423-b2a7-4c6e-a65e-58696ef2f7e0",
+      "name": "AI Agent",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.1-pro-preview",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        48,
+        224
+      ],
+      "id": "b4fa2eb7-ffe5-4094-a7a6-24ed38b46066",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "fGOKSRptMu95FSCD",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.body.mensaje }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.4,
+      "position": [
+        256,
+        224
+      ],
+      "id": "37c1a185-77fc-4bee-bb7a-f74e5f8a46f9",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "PUtvfhXYlkRTP11w",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "=Usá esta herramienta EXCLUSIVAMENTE para buscar tesis, tesinas, trabajos finales y proyectos de investigación de estudiantes de la UNGS (Universidad Nacional de General Sarmiento). Ejecutala siempre que el usuario mencione palabras como 'tesis', 'repositorio local', 'recomendaciones de temas', o pregunte qué se investigó en la universidad.",
+        "qdrantCollection": {
+          "__rl": true,
+          "value": "tesis",
+          "mode": "list",
+          "cachedResultName": "tesis"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+      "typeVersion": 1.3,
+      "position": [
+        384,
+        240
+      ],
+      "id": "e36f79ca-4ffb-408c-82ce-8e597d504d04",
+      "name": "Qdrant Vector Store",
+      "credentials": {
+        "qdrantApi": {
+          "id": "AzxR9O06tuJln9Uj",
+          "name": "Qdrant account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"respuesta\": $json.output } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        592,
+        0
+      ],
+      "id": "ac23a9d1-e990-4b18-940f-5e4a8ef92928",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        400,
+        432
+      ],
+      "id": "31fe3cbf-29f1-4791-9be2-130d2e382b11",
+      "name": "Embeddings Google Gemini",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "fGOKSRptMu95FSCD",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "Usá esta herramienta EXCLUSIVAMENTE para buscar papers científicos internacionales, el estado del arte mundial, o artículos académicos externos en inglés. Ejecutala cuando el usuario pida 'estado del arte', 'papers', 'investigaciones globales' o 'novedades tecnológicas a nivel mundial'.",
+        "url": "http://export.arxiv.org/api/query",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "search_query",
+              "value": "={{ $fromAI('query', 'palabras clave de busqueda en ingles') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.5,
+      "position": [
+        640,
+        240
+      ],
+      "id": "8e7bb232-9cd0-4700-b1fd-d4cf4ca81a44",
+      "name": "HTTP Request"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qdrant Vector Store": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Qdrant Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "64feca1c-93a5-4812-bcba-30464df445b4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1986eea2f4850fbe86415601f0e9d470cafd59b9dba440453c79649c0d089a15"
+  },
+  "nodeGroups": [],
+  "id": "c5Cbe3WZ7yvLVhkg",
+  "tags": []
+}
