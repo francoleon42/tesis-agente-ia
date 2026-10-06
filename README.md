@@ -1,19 +1,24 @@
-# 🤖 Proyecto de Tesis: Agente IA con n8n
+# 🤖 Proyecto de Tesis: Agente IA con n8n y Base Vectorial
 
-Este repositorio contiene la infraestructura completa y dockerizada para la ejecución de un Agente de Inteligencia Artificial basado en flujos. Utiliza **n8n** como motor de orquestación, **PostgreSQL** para el historial de memoria a largo plazo, **Qdrant** como base de datos vectorial y la API de **Google Gemini**.
+Este repositorio contiene la infraestructura completa y dockerizada para la ejecución de un Agente de Inteligencia Artificial enfocado en la gestión de tesis. Utiliza **n8n** como motor de orquestación, **PostgreSQL** para la memoria persistente, **Qdrant** como base de datos vectorial y la API de **Google Gemini**, todo integrado con una **interfaz web profesional** servida por Nginx.
 
-El entorno está diseñado para ser 100% reproducible y se ejecuta de forma aislada para evitar conflictos con otras instancias locales.
+El entorno está diseñado para ser 100% reproducible y ejecutarse de forma aislada para evitar conflictos con otras instancias locales.
+
+---
 
 ## 📁 Estructura del Proyecto
 
-    ia-tesis/
-    │
-    ├── docker-compose.yml       # Orquestación de contenedores (n8n + Postgres)
-    ├── .env.example             # Plantilla de variables de entorno requeridas
-    ├── init-db/
-    │   └── init.sql             # Script SQL de inicialización
-    └── flujos/
-        └── flujos_agente.json   # Exportación del workflow del Agente para importar en n8n
+ia-tesis/
+├── docker-compose.yml         # Orquestación de contenedores (Nginx + n8n + Postgres)
+├── .env.example               # Plantilla de variables de entorno requeridas
+├── init-db/
+│   └── init.sql               # Script SQL de inicialización
+├── frontend/
+│   └── index.html             # Interfaz web de usuario (Chat y Sincronización)
+└── flujos/
+    └── flujos_agente.json     # Exportación de workflows para importar en n8n
+
+---
 
 ## 🛠️ Requisitos Previos
 
@@ -21,41 +26,70 @@ Para ejecutar este proyecto, necesitas tener instalado en tu sistema:
 * [Docker](https://docs.docker.com/get-docker/)
 * [Docker Compose](https://docs.docker.com/compose/install/)
 
+---
+
 ## 🚀 Guía de Instalación y Despliegue
 
 ### 1. Preparar las Variables de Entorno
-Clona este repositorio y navega hasta la carpeta del proyecto. Luego, crea tu archivo de configuración local:
-
+Clona este repositorio, navega hasta la carpeta del proyecto y configura tus credenciales locales:
 1. Duplica el archivo `.env.example` y renómbralo a `.env`.
-2. Abre el archivo `.env` y completa los datos para la base de datos local.
+2. Completa los datos requeridos (como usuarios, contraseñas de Postgres y tokens de APIs).
 
-### 2. Levantar la Infraestructura
-Ejecuta el siguiente comando en la terminal para descargar las imágenes y levantar los contenedores en segundo plano:
+### 2. Organizar el Frontend
+Asegúrate de que tu archivo de interfaz web esté correctamente ubicado dentro de la carpeta del proyecto:
+* La ruta debe ser: `ia-tesis/frontend/index.html`
 
-    docker-compose up -d
+### 3. Levantar la Infraestructura Completa
+Ejecuta el siguiente comando en la terminal para descargar las imágenes y levantar los contenedores en segundo plano (n8n, la base de datos y el servidor web Nginx):
 
-*Nota: La base de datos local se expondrá en el puerto 5433 y n8n en el puerto 5679 para evitar conflictos con otras instancias locales existentes.*
+docker-compose up -d
 
-### 3. Configuración Inicial de n8n
-1. Ingresa a `http://localhost:5679` en tu navegador.
-2. Crea tu cuenta de usuario administrador local (puedes usar cualquier correo, es un entorno cerrado).
+* **Interfaz Web de Usuario:** Disponible en [http://localhost:8080](http://localhost:8080)
+* **Panel de n8n (Backend/Orquestador):** Disponible en [http://localhost:5679](http://localhost:5679)
+* **Base de Datos Postgres:** Expuesta en el puerto `5433`
 
-### 4. Configurar Credenciales Manualmente
-Para que los flujos puedan comunicarse con los servicios externos, debes configurar las credenciales en la interfaz de n8n:
+---
 
-1. Ve a la sección **Credentials** en el menú lateral izquierdo.
-2. Haz clic en **Create credential** y da de alta las siguientes conexiones utilizando tus tokens reales:
-   * **Postgres:** Configura el host como `postgres_tesis` y utiliza el usuario, contraseña y base de datos definidos en tu `.env`.
-   * **Qdrant API:** Ingresa la URL de tu clúster y tu API Key.
+## ⚙️ Configuración del Entorno (Modo Producción vs. Testeo)
+
+La aplicación web se comunica con los webhooks de n8n. Puedes alternar fácilmente entre el modo de producción (flujos corriendo de forma automática) y el modo de pruebas (ejecución manual en n8n).
+
+Abre el archivo `frontend/index.html` y busca la sección de configuración de JavaScript al final del código:
+
+```javascript
+// ==========================================
+// CONFIGURACIÓN DE ENTORNO
+// ==========================================
+const IS_PRODUCTION = true; // Cambiar a false para modo de pruebas
+
+### Opciones de Configuración:
+
+* **Opción A: Modo Producción (`IS_PRODUCTION = true`)** — *Ideal para entregar el producto final o realizar pruebas integrales.*
+  1. Ingresa a n8n ([http://localhost:5679](http://localhost:5679)) y abre tus flujos.
+  2. Asegúrate de hacer clic en el botón superior **Publish** para dejarlos activos permanentemente escuchando las peticiones del frontend.
+  3. La app web enviará las solicitudes automáticamente a la URL de producción (`/webhook/...`) y esperará la respuesta en segundo plano.
+
+* **Opción B: Modo Testeo / Desarrollo (`IS_PRODUCTION = false`)** — *Ideal para depurar errores o modificar nodos.*
+  1. Cambia la variable a `const IS_PRODUCTION = false;` en el `index.html`.
+  2. En n8n, abre el flujo correspondiente y haz clic en el botón **"Execute Workflow"** (o en el nodo Webhook haz clic en *Listen for test event*).
+  3. La app web enviará las solicitudes a la URL de prueba (`/webhook-test/...`) permitiéndote ver el recorrido paso a paso de los datos en tiempo real dentro del panel de n8n.
+
+---
+
+## 📋 Configuración Inicial en n8n (Solo la primera vez)
+
+1. Ingresa a `http://localhost:5679` y crea tu cuenta de usuario administrador local.
+2. **Credenciales:** Ve a la sección **Credentials** en el menú lateral e importa tus conexiones:
+   * **Postgres:** Host `postgres_tesis`, utilizando las credenciales.
+   * **Qdrant API:** Ingresa tu URL de clúster y API Key.
    * **Google Gemini:** Ingresa tu API Key de Google AI Studio.
+   * **Google drive** Conseguir datos de google cloud en :https://console.cloud.google.com/.
+   
+3. **Importar Flujos:**
+   * Ve a **Workflows** -> menú superior derecho (`...`) -> **Import from File**.
+   * Selecciona el archivo `.json` ubicado en la carpeta `/flujos` y enlázalo con las credenciales creadas.
 
-### 5. Importar el Flujo
-1. Ve a la sección **Workflows** y haz clic en **Add Workflow**.
-2. Abre el menú superior derecho (`...`) y selecciona **Import from File**.
-3. Selecciona el archivo `.json` ubicado en la carpeta `/flujos` de este repositorio.
-4. Ingresa al flujo y asegúrate de seleccionar las credenciales que acabas de crear en los nodos correspondientes.
-
-¡Listo! Ya puedes ejecutar el Agente y realizar pruebas en el entorno local.
+---
 
 ## 🛑 Comandos Útiles
 

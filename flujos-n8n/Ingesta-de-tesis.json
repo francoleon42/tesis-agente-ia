@@ -2,17 +2,6 @@
   "name": "Ingesta-de-tesis",
   "nodes": [
     {
-      "parameters": {},
-      "type": "n8n-nodes-base.manualTrigger",
-      "typeVersion": 1,
-      "position": [
-        0,
-        0
-      ],
-      "id": "3fa95353-f2db-445c-a53a-d17aa261943d",
-      "name": "When clicking ‘Execute workflow’"
-    },
-    {
       "parameters": {
         "resource": "fileFolder",
         "filter": {
@@ -27,14 +16,14 @@
       "type": "n8n-nodes-base.googleDrive",
       "typeVersion": 3,
       "position": [
-        128,
-        -400
+        -352,
+        -96
       ],
-      "id": "50b0a2ef-8c1f-4957-8416-7af04d484016",
+      "id": "09da8410-57df-48a1-9b56-62344043159c",
       "name": "Search files and folders",
       "credentials": {
         "googleDriveOAuth2Api": {
-          "id": "t6Ge1gt4Ks9TIKoA",
+          "id": "23ZrJTe8IEPO4YLF",
           "name": "Google Drive account"
         }
       }
@@ -52,14 +41,14 @@
       "type": "n8n-nodes-base.googleDrive",
       "typeVersion": 3,
       "position": [
-        256,
-        -32
+        -192,
+        192
       ],
-      "id": "badeec45-ceb8-4f75-b596-a1b0a7bc272b",
+      "id": "e77a93b5-ef4c-4863-8828-0c550919a638",
       "name": "Download file",
       "credentials": {
         "googleDriveOAuth2Api": {
-          "id": "t6Ge1gt4Ks9TIKoA",
+          "id": "23ZrJTe8IEPO4YLF",
           "name": "Google Drive account"
         }
       }
@@ -78,14 +67,14 @@
       "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
       "typeVersion": 1.3,
       "position": [
-        864,
-        -400
+        416,
+        -176
       ],
-      "id": "352ae3bf-069f-47b5-9f5d-41f87ad42ea5",
+      "id": "ae5de7ec-b906-4919-af0e-c91196aa20b2",
       "name": "Qdrant Vector Store",
       "credentials": {
         "qdrantApi": {
-          "id": "AzxR9O06tuJln9Uj",
+          "id": "scGvXu464upOUntA",
           "name": "Qdrant account"
         }
       }
@@ -97,10 +86,10 @@
       "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
       "typeVersion": 1.1,
       "position": [
-        1008,
-        -240
+        560,
+        -16
       ],
-      "id": "e44602d6-1150-473f-aacf-6b1db1d3c7ed",
+      "id": "f19e02df-fcf4-4a96-8369-2ef6e2eb9d48",
       "name": "Default Data Loader"
     },
     {
@@ -108,14 +97,14 @@
       "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
       "typeVersion": 1,
       "position": [
-        832,
-        -240
+        384,
+        -16
       ],
-      "id": "6c4cc796-899b-4d8b-b96e-5008fc4b2f3f",
+      "id": "646a2dd6-5cd6-4c06-a348-678360bbf247",
       "name": "Embeddings Google Gemini",
       "credentials": {
         "googlePalmApi": {
-          "id": "fGOKSRptMu95FSCD",
+          "id": "p7vReOd3O9an03Lv",
           "name": "Google Gemini(PaLM) Api account"
         }
       }
@@ -128,10 +117,10 @@
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 3,
       "position": [
-        592,
-        -352
+        144,
+        -128
       ],
-      "id": "5d2c4108-6600-4e9d-8e44-8c669db7923c",
+      "id": "1f324d88-da5c-4192-90f4-41e59848ffca",
       "name": "Loop Over Items"
     },
     {
@@ -141,27 +130,48 @@
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [
-        1392,
-        -272
+        944,
+        -48
       ],
-      "id": "94cb0e49-f83f-4681-abe9-610e4ec82de7",
+      "id": "034b252e-0189-4d46-a1ed-5f69d0f72861",
       "name": "Wait",
       "webhookId": "62daa749-f0b4-4466-9cad-ba17378020e9"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cff307a0-bdc5-4ab9-9fcf-188c89c3a72f",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -576,
+        64
+      ],
+      "id": "cc8c8c53-755f-45b4-91b3-f421a5eaa758",
+      "name": "Webhook",
+      "webhookId": "cff307a0-bdc5-4ab9-9fcf-188c89c3a72f"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"status\": \"success\",\n  \"message\": \"Sincronización completada\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1152,
+        -160
+      ],
+      "id": "c7d3facc-4881-42a2-844b-c25612cc1edf",
+      "name": "Respond to Webhook"
     }
   ],
   "pinData": {},
   "connections": {
-    "When clicking ‘Execute workflow’": {
-      "main": [
-        [
-          {
-            "node": "Search files and folders",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Search files and folders": {
       "main": [
         [
@@ -225,6 +235,11 @@
             "node": "Loop Over Items",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
           }
         ]
       ]
@@ -239,19 +254,30 @@
           }
         ]
       ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Search files and folders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
-  "active": false,
+  "active": true,
   "settings": {
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "96021c8b-9870-4510-b522-f1086a1a3af3",
+  "versionId": "9d142816-b616-4b08-bafc-0f1c22424925",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "1986eea2f4850fbe86415601f0e9d470cafd59b9dba440453c79649c0d089a15"
+    "instanceId": "dbf13b94bb08a7501919ea3248a8946c9b0d33bae826320046a6230d68d44f0e"
   },
   "nodeGroups": [],
-  "id": "yviYGuLkhPdv2tRu",
+  "id": "mqSTXIzbsm38QkLl",
   "tags": []
 }

@@ -37,6 +37,17 @@ services:
       postgres_tesis:
         condition: service_healthy
 
+  web:
+    image: nginx:alpine
+    container_name: web_tesis
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html
+    depends_on:
+      - n8n
+
 volumes:
   postgres_data_tesis:
   n8n_data_tesis:

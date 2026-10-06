@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Tesis - IA y Gestión</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Marked.js para interpretar Markdown -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
+
+    <!-- Header & Menú de Pestañas Responsive -->
+    <header class="bg-slate-800 border-b border-slate-700 shadow-md">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div class="flex items-center space-x-3">
+                <span class="text-2xl">🎓</span>
+                <h1 class="text-lg font-bold tracking-wide">Asistente de Tesis</h1>
+            </div>
+            <!-- Botones del Menú -->
+            <nav class="flex space-x-2 bg-slate-900 p-1.5 rounded-xl border border-slate-700 w-full sm:w-auto justify-center">
+                <button onclick="switchTab('chat')" id="btn-chat" class="flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-medium transition-all bg-indigo-600 text-white shadow">
+                    💬 Chat IA
+                </button>
+                <button onclick="switchTab('upload')" id="btn-upload" class="flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-medium transition-all text-slate-400 hover:text-white">
+                    📁 Sincronizar Drive
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Contenedor Principal -->
+    <main class="flex-1 max-w-4xl w-full mx-auto p-3 sm:p-6 flex flex-col">
+
+        <!-- SECCIÓN 1: CHAT IA -->
+        <section id="section-chat" class="flex-1 flex flex-col bg-slate-800 border border-slate-700 rounded-2xl shadow-xl overflow-hidden h-[80vh] sm:h-[75vh]">
+            <!-- Barra de mensajes -->
+            <div class="flex-1 p-4 sm:p-6 overflow-y-auto flex flex-col gap-4" id="mensajes">
+                <div class="max-w-[85%] p-3.5 rounded-2xl bg-slate-700 text-slate-100 self-start rounded-bl-none text-sm sm:text-base">
+                    ¡Hola! ¿En qué puedo ayudarte con tu tesis?
+                </div>
+            </div>
+
+            <!-- Input y Botón de Envío -->
+            <div class="p-3 sm:p-4 bg-slate-850 border-t border-slate-700 flex gap-2">
+                <input type="text" id="mensaje" placeholder="Escribí un mensaje..." autocomplete="off"
+                    class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm sm:text-base text-slate-100 outline-none focus:border-indigo-500 transition-colors">
+                <button id="boton" onclick="enviarMensaje()"
+                    class="bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-600 text-white px-5 py-3 rounded-xl font-medium transition-all text-sm sm:text-base shadow-lg shadow-indigo-600/20">
+                    Enviar
+                </button>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 2: SINCRONIZAR DESDE GOOGLE DRIVE -->
+        <section id="section-upload" class="hidden flex-1 flex flex-col justify-center items-center bg-slate-800 border border-slate-700 rounded-2xl shadow-xl p-6 sm:p-12 max-w-xl mx-auto w-full my-auto text-center">
+            <div class="w-full">
+                <!-- Ícono representativo de Google Drive -->
+                <div class="w-16 h-16 bg-slate-900 border border-slate-700 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-inner">
+                    <svg class="w-8 h-8" viewBox="0 0 87.3 78" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6.6 66.85l3.85 6.65c.8 1.4 2.1 2.3 3.6 2.7l26.7-46.2H13.6c-1.4 0-2.7-.7-3.4-2l-3.6-6.3c-.9-1.6-.9-3.5 0-5.1L10.3 3l3.6 6.3c.7 1.3 2 2 3.4 2h49.9L40.75 3.35C39.95 2 38.5 1.1 37 1H17.4l26.7 46.2L6.6 66.85z" fill="#0066da"/>
+                        <path d="M43.8 47.5l26.7 46.2c1.5.4 3.1.2 4.5-.6l15.1-26.2c1.3-.8 2.1-2.2 2.1-3.8L73.15 3.35H43.8l26.7 46.15z" fill="#00ac47"/>
+                        <path d="M73.2 3.35H43.8L17.1 49.55l13.4 23.2 26.7-46.2L73.2 3.35z" fill="#ea4335"/>
+                        <path d="M57.2 73.7L43.8 50.5 17.1 96.7h46.7c1.5 0 2.9-.8 3.7-2.1l3.8-6.6-10.1-14.3z" fill="#00832d"/>
+                        <path d="M30.5 73.7l13.3-23.2L17.1 4.3 3.4 27.8c-.8 1.4-.9 3.2-.1 4.7l13.5 23.4 13.7 17.8z" fill="#2684fc"/>
+                        <path d="M70.5 30.7H30.5L17.1 53.9h40.1l13.3-23.2z" fill="#ffba00"/>
+                    </svg>
+                </div>
+
+                <h2 class="text-xl font-bold mb-2">Sincronización con Google Drive</h2>
+                <p class="text-slate-400 text-sm mb-8">Haz clic en el botón para ordenar al flujo que escanee el repositorio en la nube y actualice la base vectorial en Qdrant de forma automática.</p>
+                
+                <button onclick="sincronizarDrive()" id="btn-sync"
+                    class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3.5 px-6 rounded-xl transition-all shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2">
+                    <span>🚀 Iniciar Sincronización</span>
+                </button>
+
+                <p id="sync-status" class="mt-6 text-sm font-medium"></p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Scripts de Funcionalidad -->
+    <script>
+        // ==========================================
+        // CONFIGURACIÓN DE ENTORNO (Cambiar a true para producción)
+        // ==========================================
+        const IS_PRODUCTION = false; 
+
+        // IDs únicos de tus flujos
+        const CHAT_ID = "c7c5f127-934e-4bd1-ad7f-df7f87f35290";
+        const SYNC_ID = "cff307a0-bdc5-4ab9-9fcf-188c89c3a72f";
+
+        // Generación automática de URLs según el modo seleccionado
+        const BASE_URL = "http://localhost:5679";
+        const WORKFLOW_MODE = IS_PRODUCTION ? "webhook" : "webhook-test";
+
+        const URL_API_CHAT = `${BASE_URL}/${WORKFLOW_MODE}/${CHAT_ID}`;
+        const URL_API_SYNC = `${BASE_URL}/${WORKFLOW_MODE}/${SYNC_ID}`;
+
+        const input = document.getElementById("mensaje");
+        const boton = document.getElementById("boton");
+        const mensajes = document.getElementById("mensajes");
+
+        // Sistema de Pestañas
+        function switchTab(tab) {
+            const chatSec = document.getElementById('section-chat');
+            const uploadSec = document.getElementById('section-upload');
+            const btnChat = document.getElementById('btn-chat');
+            const btnUpload = document.getElementById('btn-upload');
+
+            if (tab === 'chat') {
+                chatSec.classList.remove('hidden');
+                uploadSec.classList.add('hidden');
+                btnChat.className = "flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-medium transition-all bg-indigo-600 text-white shadow";
+                btnUpload.className = "flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-medium transition-all text-slate-400 hover:text-white";
+            } else {
+                chatSec.classList.add('hidden');
+                uploadSec.classList.remove('hidden');
+                btnUpload.className = "flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-medium transition-all bg-indigo-600 text-white shadow";
+                btnChat.className = "flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-medium transition-all text-slate-400 hover:text-white";
+            }
+        }
+
+        // Manejo de Mensajes del Chat
+        function agregarMensaje(texto, clase) {
+            const elemento = document.createElement("div");
+            if (clase === "usuario") {
+                elemento.className = "max-w-[85%] p-3.5 rounded-2xl bg-indigo-600 text-white self-end rounded-br-none text-sm sm:text-base";
+                elemento.textContent = texto;
+            } else {
+                elemento.className = "max-w-[85%] p-3.5 rounded-2xl bg-slate-700 text-slate-100 self-start rounded-bl-none text-sm sm:text-base";
+                elemento.innerHTML = marked.parse(texto);
+            }
+            mensajes.appendChild(elemento);
+            mensajes.scrollTop = mensajes.scrollHeight;
+        }
+
+        async function enviarMensaje() {
+            const mensaje = input.value.trim();
+            if (!mensaje) return;
+
+            agregarMensaje(mensaje, "usuario");
+            input.value = "";
+            boton.disabled = true;
+
+            try {
+                const respuesta = await fetch(URL_API_CHAT, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ mensaje: mensaje })
+                });
+
+                const datos = await respuesta.json();
+                agregarMensaje(datos.respuesta || "Respuesta vacía del servidor.", "ia");
+
+            } catch (error) {
+                agregarMensaje("Error: No se pudo conectar con el servidor.", "ia");
+                console.error(error);
+            } finally {
+                boton.disabled = false;
+                input.focus();
+            }
+        }
+
+        input.addEventListener("keydown", function(event) {
+            if (event.key === "Enter") {
+                enviarMensaje();
+            }
+        });
+
+        // Sincronización con Google Drive esperando la respuesta real del nodo
+        async function sincronizarDrive() {
+            const statusText = document.getElementById("sync-status");
+            const syncBtn = document.getElementById("btn-sync");
+
+            syncBtn.disabled = true;
+            syncBtn.classList.add("opacity-50", "cursor-not-allowed");
+            statusText.textContent = "🔄 Procesando documentos y actualizando Qdrant... (Esto puede demorar unos minutos)";
+            statusText.className = "mt-6 text-sm font-medium text-amber-400 animate-pulse";
+
+            try {
+                const response = await fetch(URL_API_SYNC, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ trigger: "sync_drive" })
+                });
+
+                // Convertimos la respuesta del "Respond to Webhook" en JSON
+                const data = await response.json();
+
+                if (response.ok && data.status === "success") {
+                    // Usamos el mensaje que configuraste en n8n
+                    statusText.textContent = `✅ ${data.message} (Base vectorial actualizada)`;
+                    statusText.className = "mt-6 text-sm font-medium text-emerald-400";
+                } else {
+                    throw new Error("El flujo finalizó con un estado inesperado.");
+                }
+            } catch (err) {
+                statusText.textContent = "❌ Error al sincronizar. Revisa la ejecución en n8n.";
+                statusText.className = "mt-6 text-sm font-medium text-rose-400";
+                console.error(err);
+            } finally {
+                syncBtn.disabled = false;
+                syncBtn.classList.remove("opacity-50", "cursor-not-allowed");
+            }
+        }
+    </script>
+</body>
+</html>
