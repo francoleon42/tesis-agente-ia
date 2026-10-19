@@ -48,6 +48,16 @@ services:
     depends_on:
       - n8n
 
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama_tesis
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data_tesis:/root/.ollama
+
 volumes:
   postgres_data_tesis:
   n8n_data_tesis:
+  ollama_data_tesis:

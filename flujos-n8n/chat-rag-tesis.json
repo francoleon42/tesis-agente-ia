@@ -45,8 +45,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
       "typeVersion": 1.2,
       "position": [
-        -16,
-        352
+        -96,
+        256
       ],
       "id": "960e0233-eea0-4257-b468-e4334b390954",
       "name": "Google Gemini Chat Model",
@@ -146,6 +146,10 @@
             {
               "name": "search_query",
               "value": "={{ $fromAI('query', 'palabras clave de busqueda en ingles') }}"
+            },
+            {
+              "name": "max_results",
+              "value": "1"
             }
           ]
         },
@@ -154,7 +158,7 @@
       "type": "n8n-nodes-base.httpRequestTool",
       "typeVersion": 4.5,
       "position": [
-        640,
+        752,
         240
       ],
       "id": "6342f30c-f76e-4de4-8cff-73249be1b049",
@@ -162,14 +166,14 @@
     },
     {
       "parameters": {
-        "model": "openai/gpt-oss-120b",
+        "model": "openai/gpt-oss-20b",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
       "typeVersion": 1,
       "position": [
-        96,
-        208
+        32,
+        480
       ],
       "id": "75a79861-be63-40a8-a6f3-42fef4e0deaa",
       "name": "Groq Chat Model",
@@ -177,6 +181,65 @@
         "groqApi": {
           "id": "1r4XpjxiVSMky2Cu",
           "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "Busca papers científicos internacionales y estado del arte en inglés. Devuelve título, año y link.",
+        "url": "https://api.openalex.org/works",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "per-page",
+              "value": "1"
+            },
+            {
+              "name": "search",
+              "value": "={{ $fromAI('query') }}"
+            },
+            {
+              "name": "select",
+              "value": "title,publication_year,id"
+            },
+            {
+              "name": "mailto",
+              "value": "francoleon2001@gmail.com"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.5,
+      "position": [
+        768,
+        496
+      ],
+      "id": "72371e1b-f01a-4048-8368-df9206540ac2",
+      "name": "openalex_search"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        112,
+        240
+      ],
+      "id": "6cd9e433-5926-4e67-9849-840b219b66dd",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "ecVX46FPRNuTKCGo",
+          "name": "Ollama account 2"
         }
       }
     }
@@ -256,6 +319,16 @@
     },
     "Groq Chat Model": {
       "ai_languageModel": [
+        []
+      ]
+    },
+    "openalex_search": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
         [
           {
             "node": "AI Agent",
@@ -271,7 +344,7 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "52c6cc36-463f-4b81-9dcd-197fb508a005",
+  "versionId": "9c2f01dd-dda2-49d7-bf51-94b46aed994e",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "dbf13b94bb08a7501919ea3248a8946c9b0d33bae826320046a6230d68d44f0e"
