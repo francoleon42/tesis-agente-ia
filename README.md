@@ -55,7 +55,7 @@ docker-compose up -d
 Como el volumen de Ollama es nuevo, debes indicarle al contenedor que descargue los pesos del modelo. Ejecuta el siguiente comando en tu terminal para bajar e instalar **Llama 3.2**:
 
 ```bash
-docker exec -it ollama_tesis ollama run llama3.2
+sudo docker exec -it ollama_tesis ollama run llama3.1
 ```
 *(Nota: El modelo pesa aproximadamente 3.2 GB y quedará guardado de forma permanente en el volumen `ollama_data_tesis` de Docker).*
 
