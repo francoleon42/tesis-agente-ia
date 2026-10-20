@@ -51,13 +51,22 @@ docker-compose up -d
 - **Base de Datos Postgres:** Expuesta en el puerto `5433`
 - **Ollama (Motor de IA Local):** Expuesto en el puerto `11434` *(URL de red interna para n8n: `http://ollama:11434`)*
 
-### 4. Descargar el Modelo de Inteligencia Artificial (Llama 3.2)
-Como el volumen de Ollama es nuevo, debes indicarle al contenedor que descargue los pesos del modelo. Ejecuta el siguiente comando en tu terminal para bajar e instalar **Llama 3.2**:
+### 4. Descargar el Modelo de Inteligencia Artificial 
+#### Llama 3.1
+Como el volumen de Ollama es nuevo, debes indicarle al contenedor que descargue los pesos del modelo. Ejecuta el siguiente comando en tu terminal para bajar e instalar **Llama 3.1**:
 
 ```bash
 sudo docker exec -it ollama_tesis ollama run llama3.1
 ```
-*(Nota: El modelo pesa aproximadamente 3.2 GB y quedará guardado de forma permanente en el volumen `ollama_data_tesis` de Docker).*
+*(Nota: El modelo pesa aproximadamente 3.1 GB y quedará guardado de forma permanente en el volumen `ollama_data_tesis` de Docker).*
+
+---
+#### qwen2.5:14b (mejor perfomance no servidor)
+El experto en herramientas (14B de parámetros): qwen2.5:14b. Es un modelo de Alibaba que actualmente es de los mejores en formato local para seguir reglas lógicas estrictas y usar tools sin alucinar. Pesa unos 9 GB y requiere al menos 16 GB de RAM libres.
+```bash
+docker exec -it ollama_tesis ollama run qwen2.5:14b
+```
+*(Nota: El modelo pesa aproximadamente 3.1 GB y quedará guardado de forma permanente en el volumen `ollama_data_tesis` de Docker).*
 
 ---
 
