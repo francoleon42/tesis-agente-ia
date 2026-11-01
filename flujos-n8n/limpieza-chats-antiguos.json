@@ -1,0 +1,77 @@
+{
+  "name": "limpieza-chats-antiguos",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 4,
+              "triggerAtMinute": 59
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        16
+      ],
+      "id": "b2ee231e-9cff-46dc-bee2-1155c8bbb2bf",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "DELETE FROM n8n_chat_histories\nWHERE session_id IN (\n    SELECT session_id\n    FROM n8n_chat_histories\n    GROUP BY session_id\n    HAVING MAX(created_at) < NOW() - INTERVAL '24 hours'\n);",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.7,
+      "position": [
+        224,
+        16
+      ],
+      "id": "d3ed212a-4cb5-4a08-95d1-76a27aefa974",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "postgres": {
+          "id": "1f2tBsLtWqoiwbUI",
+          "name": "Postgres account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "timezone": "America/Argentina/Buenos_Aires",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "c42b15d4-9fbb-43f5-a635-208c5c930fa5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "92ae0e86f37196653f6f1916a3802121e45938beb4b93ba70867f27135be304a"
+  },
+  "nodeGroups": [],
+  "id": "Ynhbhq3Wl1bUGVpC",
+  "tags": []
+}

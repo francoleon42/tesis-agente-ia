@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Tesis - IA y Gestión</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Marked.js para interpretar Markdown -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
+
+    <!-- Header & Menú de Pestañas Responsive -->
+    <header class="bg-slate-800 border-b border-slate-700 shadow-md">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div class="flex items-center space-x-3">
+                <span class="text-2xl">🎓</span>
+                <h1 class="text-lg font-bold tracking-wide">Asistente de Tesis</h1>
+            </div>
+            <!-- Botones del Menú -->
+            <nav class="flex space-x-2 bg-slate-900 p-1.5 rounded-xl border border-slate-700 w-full sm:w-auto justify-center">
+                <button onclick="switchTab('chat')" id="btn-chat" class="flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-medium transition-all bg-indigo-600 text-white shadow">
+                    💬 Chat IA
+                </button>
+                <button onclick="switchTab('upload')" id="btn-upload" class="flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-medium transition-all text-slate-400 hover:text-white">
+                    📁 Actualizar Tesis
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Contenedor Principal -->
+    <main class="flex-1 max-w-4xl w-full mx-auto p-3 sm:p-6 flex flex-col">
+
+        <!-- SECCIÓN 1: CHAT IA -->
+        <section id="section-chat" class="flex-1 flex flex-col bg-slate-800 border border-slate-700 rounded-2xl shadow-xl overflow-hidden h-[80vh] sm:h-[75vh]">
+            <!-- Barra de mensajes -->
+            <div class="flex-1 p-4 sm:p-6 overflow-y-auto flex flex-col gap-4" id="mensajes">
+                <div class="max-w-[85%] p-3.5 rounded-2xl bg-slate-700 text-slate-100 self-start rounded-bl-none text-sm sm:text-base">
+                    ¡Hola! ¿En qué puedo ayudarte con tu tesis?
+                </div>
+            </div>
+
+            <!-- Input y Botón de Envío -->
+            <div class="p-3 sm:p-4 bg-slate-850 border-t border-slate-700 flex gap-2">
+                <input type="text" id="mensaje" placeholder="Escribí un mensaje..." autocomplete="off"
+                    class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm sm:text-base text-slate-100 outline-none focus:border-indigo-500 transition-colors">
+                <button id="boton" onclick="enviarMensaje()"
+                    class="bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-600 text-white px-5 py-3 rounded-xl font-medium transition-all text-sm sm:text-base shadow-lg shadow-indigo-600/20">
+                    Enviar
+                </button>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 2: SINCRONIZAR DESDE GOOGLE DRIVE -->
+        <section id="section-upload" class="hidden flex-1 flex flex-col justify-center items-center bg-slate-800 border border-slate-700 rounded-2xl shadow-xl p-6 sm:p-12 max-w-xl mx-auto w-full my-auto text-center">
+            <div class="w-full">
+                <!-- Ícono representativo de Google Drive -->
+                <div class="w-16 h-16 bg-slate-900 border border-slate-700 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-inner">
+                    <img src="drive.svg" alt="Google Drive" class="w-8 h-8 object-contain">
+                </div>
+
+                <h2 class="text-xl font-bold mb-2">Sincronización con Google Drive</h2>
+                <p class="text-slate-400 text-sm mb-8">Haz clic en el botón para ordenar al flujo que escanee el repositorio en la nube y actualice la base vectorial en Qdrant de forma automática.</p>
+                
+                <button onclick="sincronizarDrive()" id="btn-sync"
+                    class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3.5 px-6 rounded-xl transition-all shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2">
+                    <span>🚀 Iniciar Sincronización</span>
+                </button>
+
+                <p id="sync-status" class="mt-6 text-sm font-medium"></p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Scripts de Funcionalidad -->
+    <script>
+        // ==========================================
+        // CONFIGURACIÓN DE ENTORNO (Cambiar a true para producción)
+        // ==========================================
+        const IS_PRODUCTION = false; 
+		const USUARIO_ID = `Usuario${Math.floor(100000 + Math.random() * 900000)}`;
+
+        // IDs únicos de tus flujos
+        const CHAT_ID = "c7c5f127-934e-4bd1-ad7f-df7f87f35290";
+        const SYNC_ID = "cff307a0-bdc5-4ab9-9fcf-188c89c3a72f";
+
+        // Generación automática de URLs según el modo seleccionado
+        const BASE_URL = "http://localhost:5678";
+        const WORKFLOW_MODE = IS_PRODUCTION ? "webhook" : "webhook-test";
+
+        const URL_API_CHAT = `${BASE_URL}/${WORKFLOW_MODE}/${CHAT_ID}`;
+        const URL_API_SYNC = `${BASE_URL}/${WORKFLOW_MODE}/${SYNC_ID}`;
+
+        const input = document.getElementById("mensaje");
+        const boton = document.getElementById("boton");
+        const mensajes = document.getElementById("mensajes");
+
+        // Sistema de Pestañas
+        function switchTab(tab) {
+            const chatSec = document.getElementById('section-chat');
+            const uploadSec = document.getElementById('section-upload');
+            const btnChat = document.getElementById('btn-chat');
+            const btnUpload = document.getElementById('btn-upload');
+
+            if (tab === 'chat') {
+                chatSec.classList.remove('hidden');
+                uploadSec.classList.add('hidden');
+                btnChat.className = "flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-medium transition-all bg-indigo-600 text-white shadow";
+                btnUpload.className = "flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-medium transition-all text-slate-400 hover:text-white";
+            } else {
+                chatSec.classList.add('hidden');
+                uploadSec.classList.remove('hidden');
+                btnUpload.className = "flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-medium transition-all bg-indigo-600 text-white shadow";
+                btnChat.className = "flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-medium transition-all text-slate-400 hover:text-white";
+            }
+        }
+
+        // Manejo de Mensajes del Chat
+        function agregarMensaje(texto, clase) {
+            const elemento = document.createElement("div");
+            if (clase === "usuario") {
+                elemento.className = "max-w-[85%] p-3.5 rounded-2xl bg-indigo-600 text-white self-end rounded-br-none text-sm sm:text-base";
+                elemento.textContent = texto;
+            } else {
+                elemento.className = "max-w-[85%] p-3.5 rounded-2xl bg-slate-700 text-slate-100 self-start rounded-bl-none text-sm sm:text-base";
+                elemento.innerHTML = marked.parse(texto);
+            }
+            mensajes.appendChild(elemento);
+            mensajes.scrollTop = mensajes.scrollHeight;
+        }
+
+        async function enviarMensaje() {
+            const mensaje = input.value.trim();
+            if (!mensaje) return;
+
+            agregarMensaje(mensaje, "usuario");
+            input.value = "";
+            boton.disabled = true;
+
+            try {
+                const respuesta = await fetch(URL_API_CHAT, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ mensaje: mensaje, usuario: USUARIO_ID })
+                });
+
+                const datos = await respuesta.json();
+                agregarMensaje(datos.respuesta || "Respuesta vacía del servidor.", "ia");
+
+            } catch (error) {
+                agregarMensaje("Error: No se pudo conectar con el servidor.", "ia");
+                console.error(error);
+            } finally {
+                boton.disabled = false;
+                input.focus();
+            }
+        }
+
+        input.addEventListener("keydown", function(event) {
+            if (event.key === "Enter") {
+                enviarMensaje();
+            }
+        });
+
+        // Sincronización con Google Drive esperando la respuesta real del nodo
+        async function sincronizarDrive() {
+            const statusText = document.getElementById("sync-status");
+            const syncBtn = document.getElementById("btn-sync");
+
+            syncBtn.disabled = true;
+            syncBtn.classList.add("opacity-50", "cursor-not-allowed");
+            statusText.textContent = "🔄 Procesando documentos y actualizando Qdrant... (Esto puede demorar unos minutos)";
+            statusText.className = "mt-6 text-sm font-medium text-amber-400 animate-pulse";
+
+            try {
+                const response = await fetch(URL_API_SYNC, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ trigger: "sync_drive" })
+                });
+
+                // Convertimos la respuesta del "Respond to Webhook" en JSON
+                const data = await response.json();
+
+                if (response.ok && data.status === "success") {
+                    // Usamos el mensaje que configuraste en n8n
+                    statusText.textContent = `✅ ${data.message} (Base vectorial actualizada)`;
+                    statusText.className = "mt-6 text-sm font-medium text-emerald-400";
+                } else {
+                    throw new Error("El flujo finalizó con un estado inesperado.");
+                }
+            } catch (err) {
+                statusText.textContent = "❌ Error al sincronizar. Revisa la ejecución en n8n.";
+                statusText.className = "mt-6 text-sm font-medium text-rose-400";
+                console.error(err);
+            } finally {
+                syncBtn.disabled = false;
+                syncBtn.classList.remove("opacity-50", "cursor-not-allowed");
+            }
+        }
+    </script>
+</body>
+</html>
